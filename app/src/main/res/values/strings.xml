@@ -3,4 +3,5 @@
     <string name="home_btn_status_on">Home Button Enabled</string>
     <string name="home_btn_status_off">Home Button Disabled</string>
     <string name="toggle">Toggle current device setting</string>
+    <string name="device_not_supported">Device not supported</string>
 </resources>
