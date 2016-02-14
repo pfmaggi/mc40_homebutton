@@ -9,15 +9,18 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
-    private final String MANUFACTURER_ZEBRA = "Zebra Technologies";
-    private final String MANUFACTURER_MSI = "Motorola Solutions";
-    private final String MODEL_MC40 = "MC40N0";
-    private final String INTENT_ZEBRA = "com.symbol.intent.action.HOMEKEY_MODE";
-    private final String INTENT_MSI = "com.motorolasolutions.intent.action.HOMEKEY_MODE";
-    private final String INTENT_EXTRA = "state";
+    private static final String KEY_STATE = "key_state";
+    private static final int STATE_DISABLED = 0;
+    private static final int STATE_ENABLED = 1;
+    private static final String MANUFACTURER_ZEBRA = "Zebra Technologies";
+    private static final String MANUFACTURER_MSI = "Motorola Solutions";
+    private static final String MODEL_MC40 = "MC40N0";
+    private static final String INTENT_ZEBRA = "com.symbol.intent.action.HOMEKEY_MODE";
+    private static final String INTENT_MSI = "com.motorolasolutions.intent.action.HOMEKEY_MODE";
+    private static final String INTENT_EXTRA = "state";
     private String mStrIntent;
     private TextView mTvwStatus;
-    private int mStatus;
+    private int mState = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,27 +52,33 @@ public class MainActivity extends AppCompatActivity {
             bSupported = false;
         }
 
+        if (savedInstanceState != null) {
+            mState = savedInstanceState.getInt(KEY_STATE, STATE_DISABLED);
+        }
         Button btnToggle = (Button)findViewById(R.id.btnToggleStatus);
         if (bSupported) {
-            mTvwStatus.setText(R.string.home_btn_status_off);
-            mStatus = 0;
+            if (STATE_DISABLED == mState) {
+                mTvwStatus.setText(R.string.home_btn_status_off);
+            } else {
+                mTvwStatus.setText(R.string.home_btn_status_on);
+            }
             Intent i = new Intent(mStrIntent);
-            i.putExtra(INTENT_EXTRA, mStatus);
+            i.putExtra(INTENT_EXTRA, mState);
             sendBroadcast(i);
 
             btnToggle.setOnClickListener(new View.OnClickListener() {
                                              @Override
                                              public void onClick(View v) {
                                                  //Toggle Current Status
-                                                 if (0 == mStatus) {
-                                                     mStatus = 1;
+                                                 if (STATE_DISABLED == mState) {
+                                                     mState = STATE_ENABLED;
                                                      mTvwStatus.setText(R.string.home_btn_status_on);
                                                  } else {
-                                                     mStatus = 0;
+                                                     mState = STATE_DISABLED;
                                                      mTvwStatus.setText(R.string.home_btn_status_off);
                                                  }
                                                  Intent i = new Intent(mStrIntent);
-                                                 i.putExtra(INTENT_EXTRA, mStatus);
+                                                 i.putExtra(INTENT_EXTRA, mState);
                                                  sendBroadcast(i);
 
                                              }
@@ -79,6 +88,11 @@ public class MainActivity extends AppCompatActivity {
             mTvwStatus.setText(R.string.device_not_supported);
             btnToggle.setEnabled(false);
         }
+    }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putInt(KEY_STATE, mState);
     }
 }
